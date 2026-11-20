@@ -1,5 +1,4 @@
 
-
 import './style.css';
 
 // ==========================================
@@ -77,12 +76,12 @@ const gameDeals = [
 // 2. PART A - REQUIRED FUNCTIONS
 // ==========================================
 
-// Find all games currently on sale
+// Find games currently on sale
 function getGamesOnSale(games) {
   return games.filter(game => game.salePrice < game.normalPrice);
 }
 
-// Calculate the discount percentage
+// Calculate discount percentage
 function calculateDiscountPercentage(game) {
   const discount = game.normalPrice - game.salePrice;
 
@@ -99,111 +98,231 @@ function findCheapestGame(games) {
 // Search games by title (case-insensitive)
 function searchGames(games, searchTerm) {
   return games.filter(game =>
-    game.title.toLowerCase().includes(searchTerm.toLowerCase())
+    game.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
   );
 }
 
 // ==========================================
-// 3. PART B - DISPLAY GAMES ON THE PAGE
+// 3. PART C - FILTER SETTINGS
 // ==========================================
 
-// Get the HTML element where games will be displayed
-const app = document.querySelector('#app');
+// Store the current filter setting
+let showOnlyOnSale = false;
 
-// Display the games
-function displayGames(games) {
+// ==========================================
+// 4. DISPLAY THE GAME CARDS
+// ==========================================
 
-  app.innerHTML = `
-    <header class="header">
-      <div class="header-content">
-        <h1>🎮 PC Game Deals</h1>
-        <p>Discover amazing games at unbeatable prices.</p>
+function displayGameCards(games) {
+
+  const gameGrid = document.querySelector('#gameGrid');
+  const resultCount = document.querySelector('#resultCount');
+
+  // Update the number of games displayed
+  resultCount.textContent = `Showing ${games.length} game(s)`;
+
+  // Show a message if no games match the search
+  if (games.length === 0) {
+    gameGrid.innerHTML = `
+      <div class="no-results">
+        <h3>No games found</h3>
+        <p>Try another game title or change your filter.</p>
       </div>
-    </header>
+    `;
 
-    <main class="container">
+    return;
+  }
 
-      <section class="welcome">
-        <h2>Latest Game Deals</h2>
-        <p>Explore our collection of PC games and find your next favourite.</p>
-      </section>
+  // Generate a card for every matching game
+  gameGrid.innerHTML = games.map(game => {
 
-      <section class="game-grid">
+    const isOnSale = game.salePrice < game.normalPrice;
 
-        ${games.map(game => {
+    return `
+      <article class="game-card">
 
-          // Check whether the game is discounted
-          const isOnSale = game.salePrice < game.normalPrice;
+        <div class="game-image">
 
-          return `
-            <article class="game-card">
+          <img
+            src="${game.image}"
+            alt="${game.title} cover"
+            class="game-cover"
+            onerror="this.style.display='none'"
+          />
 
-              <div class="game-image">
+          ${isOnSale
+            ? `<span class="sale-tag">ON SALE</span>`
+            : ''
+          }
 
-                <img
-                  src="${game.image}"
-                  alt="${game.title} cover"
-                  class="game-cover"
-                  onerror="this.style.display='none'"
-                />
+        </div>
 
-                ${isOnSale
-                  ? `<span class="sale-tag">ON SALE</span>`
-                  : ''
-                }
+        <div class="game-info">
 
-              </div>
+          <p class="store">${game.store}</p>
 
-              <div class="game-info">
+          <h3>${game.title}</h3>
 
-                <p class="store">${game.store}</p>
+          <div class="price-container">
 
-                <h3>${game.title}</h3>
+            ${isOnSale
+              ? `<span class="normal-price">
+                  R${game.normalPrice.toFixed(2)}
+                </span>`
+              : ''
+            }
 
-                <div class="price-container">
+            <span class="sale-price">
+              R${game.salePrice.toFixed(2)}
+            </span>
 
-                  ${isOnSale
-                    ? `<span class="normal-price">
-                        R${game.normalPrice.toFixed(2)}
-                      </span>`
-                    : ''
-                  }
+          </div>
 
-                  <span class="sale-price">
-                    R${game.salePrice.toFixed(2)}
-                  </span>
+          ${isOnSale
+            ? `<p class="discount">
+                ${calculateDiscountPercentage(game)}% OFF
+              </p>`
+            : `<p class="regular-label">Regular Price</p>`
+          }
 
-                </div>
+        </div>
 
-                ${isOnSale
-                  ? `<p class="discount">
-                      ${calculateDiscountPercentage(game)}% OFF
-                    </p>`
-                  : `<p class="regular-label">Regular Price</p>`
-                }
+      </article>
+    `;
 
-              </div>
-
-            </article>
-          `;
-
-        }).join('')}
-
-      </section>
-
-    </main>
-
-    <footer>
-      <p>PC Game Deals &copy; 2026 | Find your next favourite game.</p>
-    </footer>
-  `;
+  }).join('');
 }
 
-// Display all eight games
-displayGames(gameDeals);
+// ==========================================
+// 5. PART B - CREATE THE PAGE
+// ==========================================
+
+const app = document.querySelector('#app');
+
+app.innerHTML = `
+  <header class="header">
+
+    <div class="header-content">
+      <h1>🎮 PC Game Deals</h1>
+      <p>Discover amazing games at unbeatable prices.</p>
+    </div>
+
+  </header>
+
+  <main class="container">
+
+    <section class="welcome">
+
+      <h2>Latest Game Deals</h2>
+
+      <p>
+        Explore our collection of PC games and find your next favourite.
+      </p>
+
+    </section>
+
+    <!-- Search and filter controls -->
+
+    <section class="deal-controls">
+
+      <div class="search-box">
+
+        <span class="search-icon">🔍</span>
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search for a game..."
+          aria-label="Search games by title"
+        />
+
+      </div>
+
+      <button
+        id="saleFilterButton"
+        class="filter-button"
+        type="button"
+        aria-pressed="false"
+      >
+        🏷️ Show Only On Sale
+      </button>
+
+    </section>
+
+    <p id="resultCount" class="result-count"></p>
+
+    <!-- Games will be displayed here -->
+
+    <section class="game-grid" id="gameGrid"></section>
+
+  </main>
+
+  <footer>
+    <p>PC Game Deals &copy; 2026 | Find your next favourite game.</p>
+  </footer>
+`;
 
 // ==========================================
-// 4. TEST PART A FUNCTIONS
+// 6. PART C - LIVE SEARCH AND FILTERING
+// ==========================================
+
+// Get the search input and filter button
+const searchInput = document.querySelector('#searchInput');
+
+const saleFilterButton = document.querySelector('#saleFilterButton');
+
+// Update the displayed games according to the selected filters
+function updateDisplayedGames() {
+
+  // Get what the user has typed
+  const searchTerm = searchInput.value;
+
+  // Start with all available games
+  let filteredGames = gameDeals;
+
+  // Apply the search filter
+  if (searchTerm.trim() !== '') {
+    filteredGames = searchGames(filteredGames, searchTerm);
+  }
+
+  // Apply the on-sale filter
+  if (showOnlyOnSale) {
+    filteredGames = getGamesOnSale(filteredGames);
+  }
+
+  // Display the matching games
+  displayGameCards(filteredGames);
+}
+
+// Listen for typing in the search box
+searchInput.addEventListener('input', updateDisplayedGames);
+
+// Toggle the on-sale filter
+saleFilterButton.addEventListener('click', () => {
+
+  // Change the filter setting
+  showOnlyOnSale = !showOnlyOnSale;
+
+  // Update the button appearance and text
+  saleFilterButton.classList.toggle('active', showOnlyOnSale);
+
+  saleFilterButton.textContent = showOnlyOnSale
+    ? '✓ Showing Only On Sale'
+    : '🏷️ Show Only On Sale';
+
+  // Refresh the displayed games
+  updateDisplayedGames();
+
+});
+
+// ==========================================
+// 7. DISPLAY ALL GAMES WHEN PAGE LOADS
+// ==========================================
+
+updateDisplayedGames();
+
+// ==========================================
+// 8. TEST PART A FUNCTIONS
 // ==========================================
 
 console.log("Games on sale:", getGamesOnSale(gameDeals));

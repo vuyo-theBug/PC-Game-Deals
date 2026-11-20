@@ -221,3 +221,122 @@ footer {
     font-size: 25px;
   }
 }
+
+/* ==========================================
+   PART C - SEARCH AND FILTER CONTROLS
+========================================== */
+
+.deal-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Search box */
+
+.search-box {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #cce5fa;
+  border-radius: 9px;
+  padding: 0 15px;
+  height: 48px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: #69a9df;
+  box-shadow: 0 0 0 3px rgba(105, 169, 223, 0.15);
+}
+
+.search-icon {
+  font-size: 17px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #315d85;
+  font-size: 14px;
+}
+
+.search-box input::placeholder {
+  color: #a0b5c8;
+}
+
+/* On-sale filter button */
+
+.filter-button {
+  height: 48px;
+  padding: 0 20px;
+  border: 1px solid #8dc5f0;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #398bcf;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  background: #e4f3ff;
+}
+
+.filter-button.active {
+  background: #5babe9;
+  border-color: #5babe9;
+  color: #ffffff;
+}
+
+/* Number of matching games */
+
+.result-count {
+  color: #829bb2;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+/* No matching games message */
+
+.no-results {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border: 1px solid #dceeff;
+  border-radius: 12px;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.no-results h3 {
+  color: #315d85;
+  margin-bottom: 10px;
+}
+
+.no-results p {
+  color: #829bb2;
+  font-size: 14px;
+}
+
+/* Responsive search controls */
+
+@media (max-width: 500px) {
+  .deal-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box,
+  .filter-button {
+    width: 100%;
+  }
+}
