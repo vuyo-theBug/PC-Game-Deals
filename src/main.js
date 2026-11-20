@@ -1,4 +1,3 @@
-
 import './style.css';
 
 
@@ -486,7 +485,7 @@ sampleButton.addEventListener('click', () => {
   liveButton.classList.remove('active');
 
   document.querySelector('#sourceDescription').textContent =
-    'Showing the original assessment game data in South African Rand.';
+    'CheapShark Deals are in Dollars($).';
 
   document.querySelector('#errorMessage').textContent = '';
 
