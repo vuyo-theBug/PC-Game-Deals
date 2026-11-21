@@ -394,3 +394,186 @@ footer {
   }
 
 }
+
+/* Make game cards clickable */
+
+.clickable-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(35, 91, 132, 0.15);
+}
+
+.clickable-card:focus-visible {
+  outline: 3px solid #55a8e5;
+  outline-offset: 3px;
+}
+
+/* Selected game details */
+
+[hidden] {
+  display: none !important;
+}
+
+.game-details-page {
+  margin: 25px 0;
+}
+
+.back-button {
+  padding: 11px 18px;
+  margin-bottom: 20px;
+  border: 1px solid #9bc9ed;
+  border-radius: 9px;
+  background: white;
+  color: #245477;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.back-button:hover {
+  background: #e4f3ff;
+}
+
+.details-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 28px;
+  padding: 24px;
+  background: white;
+  border: 1px solid #d7e9f7;
+  border-radius: 15px;
+  box-shadow: 0 5px 18px rgba(35, 91, 132, 0.08);
+}
+
+.details-image-container {
+  overflow: hidden;
+  border-radius: 11px;
+  background: #e8f4fd;
+}
+
+.details-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  max-height: 350px;
+  object-fit: cover;
+}
+
+.details-content {
+  align-self: center;
+}
+
+.details-store {
+  margin-bottom: 8px;
+  color: #6d8ba4;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.details-content h2 {
+  margin: 8px 0 18px;
+  color: #183b5b;
+  font-size: 29px;
+}
+
+.details-content h3 {
+  margin-top: 22px;
+  color: #245477;
+  font-size: 17px;
+}
+
+.details-description {
+  margin: 12px 0 20px;
+  color: #55718a;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.details-sale-tag {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: #b9e0ff;
+  color: #123b5b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.details-prices {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.details-sale-price {
+  color: #247db8;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.details-normal-price {
+  color: #8295a5;
+  font-size: 16px;
+  text-decoration: line-through;
+}
+
+.details-discount {
+  margin: 10px 0;
+  color: #287e65;
+  font-weight: 700;
+}
+
+.details-regular {
+  color: #75899a;
+  font-size: 14px;
+}
+
+.details-rating {
+  margin-top: 12px;
+  color: #55718a;
+  font-size: 14px;
+}
+
+.details-deal-link {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: #a9d9fb;
+  color: #153e5d;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.details-deal-link:hover {
+  background: #87c8f5;
+}
+
+/* Mobile layout */
+
+@media (max-width: 650px) {
+  .details-card {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .details-image {
+    min-height: 180px;
+    max-height: 230px;
+  }
+
+  .details-content h2 {
+    font-size: 24px;
+  }
+}
+

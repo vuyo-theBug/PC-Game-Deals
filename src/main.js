@@ -1,6 +1,7 @@
+
 import './style.css';
 
-
+// SAMPLE GAME DATA
 const sampleDeals = [
   {
     id: 1,
@@ -68,69 +69,97 @@ const sampleDeals = [
   }
 ];
 
+// GAME DESCRIPTIONS
+const gameDescriptions = {
+  "Hollow Knight":
+    "Explore a mysterious underground kingdom filled with forgotten secrets, dangerous creatures and challenging enemies in this beautiful action-adventure game.",
+
+  "Stardew Valley":
+    "Build your own farm, grow crops, raise animals, explore caves and become part of a welcoming countryside community.",
+
+  "Celeste":
+    "Help Madeline climb a dangerous mountain while overcoming challenging obstacles in this emotional and exciting platforming adventure.",
+
+  "Hades":
+    "Battle your way out of the Underworld in this action-packed roguelike game inspired by Greek mythology.",
+
+  "Portal 2":
+    "Solve creative puzzles using a portal gun while exploring a mysterious testing facility filled with unexpected challenges.",
+
+  "Terraria":
+    "Dig, build, explore and fight your way through a massive 2D sandbox adventure where you create your own experience.",
+
+  "Disco Elysium":
+    "Play as a detective investigating a murder while making decisions that shape your character and the story.",
+
+  "Cuphead":
+    "Take on challenging boss battles in a classic cartoon-inspired run-and-gun adventure."
+};
+
+// PART A: GET GAMES ON SALE
 function getGamesOnSale(games) {
   return games.filter(game => game.salePrice < game.normalPrice);
 }
 
+// PART A: CALCULATE DISCOUNT
 function calculateDiscountPercentage(game) {
+  if (game.normalPrice <= 0) {
+    return 0;
+  }
+
   const discount = game.normalPrice - game.salePrice;
 
   return Math.round((discount / game.normalPrice) * 100);
 }
 
-
+// PART A: FIND CHEAPEST GAME
 function findCheapestGame(games) {
+  if (games.length === 0) {
+    return null;
+  }
+
   return games.reduce((cheapest, game) => {
     return game.salePrice < cheapest.salePrice ? game : cheapest;
   });
 }
 
+// PART A: SEARCH GAMES
 function searchGames(games, searchTerm) {
   return games.filter(game =>
     game.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
   );
 }
 
+// APPLICATION SETTINGS
 let currentDeals = sampleDeals;
-
 let isLiveMode = false;
-
 let showOnlyOnSale = false;
-
 let currentCurrency = "ZAR";
 
-// CheapShark API address
 const API_URL = "https://www.cheapshark.com/api/1.0";
 
 const app = document.querySelector('#app');
 
+// CREATE THE PAGE
 app.innerHTML = `
 
   <header class="header">
-
     <div class="header-content">
       <h1>🎮 PC Game Deals</h1>
       <p>Discover amazing games at unbeatable prices.</p>
     </div>
-
   </header>
 
   <main class="container">
 
     <section class="welcome">
-
       <h2>Latest Game Deals</h2>
-
       <p>
         Explore our collection of PC games and find your next favourite.
       </p>
-
     </section>
 
-    <!-- DATA SOURCE CONTROLS -->
-
     <section class="data-source">
-
       <h3>Choose Deal Source</h3>
 
       <div class="source-buttons">
@@ -154,17 +183,13 @@ app.innerHTML = `
       </div>
 
       <p id="sourceDescription">
-        CheapShark Deals are in Dollars($).
+        Sample game deals are displayed in South African rand (ZAR).
       </p>
-
     </section>
-
-    <!-- SEARCH AND FILTER -->
 
     <section class="deal-controls">
 
       <div class="search-box">
-
         <span class="search-icon">🔍</span>
 
         <input
@@ -173,7 +198,6 @@ app.innerHTML = `
           placeholder="Search for a game..."
           aria-label="Search games by title"
         />
-
       </div>
 
       <button
@@ -195,6 +219,9 @@ app.innerHTML = `
 
     <section class="game-grid" id="gameGrid"></section>
 
+    <!-- SELECTED GAME DETAILS -->
+    <section id="gameDetails" class="game-details-page" hidden></section>
+
   </main>
 
   <footer>
@@ -206,17 +233,41 @@ app.innerHTML = `
 
 `;
 
+// PAGE ELEMENTS
+const searchInput = document.querySelector('#searchInput');
+const saleFilterButton = document.querySelector('#saleFilterButton');
+const gameGrid = document.querySelector('#gameGrid');
+const resultCount = document.querySelector('#resultCount');
+const gameDetails = document.querySelector('#gameDetails');
+
+// FORMAT PRICES
+function formatPrice(price) {
+  const symbol = currentCurrency === "ZAR" ? "R" : "$";
+
+  return `${symbol}${Number(price).toFixed(2)}`;
+}
+
+// ESCAPE TEXT FROM API DATA BEFORE INSERTING IT INTO HTML
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => {
+    const characters = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    };
+
+    return characters[character];
+  });
+}
+
+// DISPLAY GAME CARDS
 function displayGameCards(games) {
 
-  const gameGrid = document.querySelector('#gameGrid');
-
-  const resultCount = document.querySelector('#resultCount');
-
-  // Update the number of displayed games
   resultCount.textContent = `Showing ${games.length} game(s)`;
 
   if (games.length === 0) {
-
     gameGrid.innerHTML = `
       <div class="no-results">
         <h3>No games found</h3>
@@ -231,23 +282,30 @@ function displayGameCards(games) {
 
     const isOnSale = game.salePrice < game.normalPrice;
 
-    const currencySymbol = currentCurrency === "ZAR" ? "R" : "$";
+    const gameKey = escapeHTML(game.dealID || game.id);
+    const gameTitle = escapeHTML(game.title);
+    const storeName = escapeHTML(game.store);
 
     const dealLink = game.dealID
-      ? `https://www.cheapshark.com/redirect?dealID=${game.dealID}`
+      ? `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(game.dealID)}`
       : "";
 
     return `
 
-      <article class="game-card">
+      <article
+        class="game-card clickable-card"
+        data-game-key="${gameKey}"
+        tabindex="0"
+        role="button"
+        aria-label="View details for ${gameTitle}"
+      >
 
         <div class="game-image">
 
           <img
-            src="${game.image || ''}"
-            alt="${game.title} cover"
+            src="${escapeHTML(game.image || '')}"
+            alt="${gameTitle} cover"
             class="game-cover"
-            onerror="this.style.display='none'"
           />
 
           ${isOnSale
@@ -259,21 +317,21 @@ function displayGameCards(games) {
 
         <div class="game-info">
 
-          <p class="store">${game.store}</p>
+          <p class="store">${storeName}</p>
 
-          <h3>${game.title}</h3>
+          <h3>${gameTitle}</h3>
 
           <div class="price-container">
 
             ${isOnSale
               ? `<span class="normal-price">
-                  ${currencySymbol}${game.normalPrice.toFixed(2)}
+                  ${formatPrice(game.normalPrice)}
                 </span>`
               : ''
             }
 
             <span class="sale-price">
-              ${currencySymbol}${game.salePrice.toFixed(2)}
+              ${formatPrice(game.salePrice)}
             </span>
 
           </div>
@@ -305,36 +363,232 @@ function displayGameCards(games) {
 
   }).join('');
 
+  // Hide any game image that fails to load.
+  gameGrid.querySelectorAll('.game-cover').forEach(image => {
+    image.addEventListener('error', () => {
+      image.style.display = 'none';
+    });
+  });
+
 }
 
-const searchInput = document.querySelector('#searchInput');
-
-const saleFilterButton = document.querySelector('#saleFilterButton');
-
+// UPDATE THE DISPLAYED GAMES
 function updateDisplayedGames() {
 
   const searchTerm = searchInput.value;
 
   let filteredGames = currentDeals;
 
-  // Apply live search
+  // Apply search.
   if (searchTerm.trim() !== '') {
     filteredGames = searchGames(filteredGames, searchTerm);
   }
 
-  // Apply on-sale filter
+  // Apply on-sale filter.
   if (showOnlyOnSale) {
     filteredGames = getGamesOnSale(filteredGames);
   }
 
-  // Display filtered results
   displayGameCards(filteredGames);
 }
 
-// Listen for changes in the search box
+// SHOW DETAILS OF THE SELECTED GAME
+function showGameDetails(game) {
+
+  const isOnSale = game.salePrice < game.normalPrice;
+
+  const description = gameDescriptions[game.title] ||
+    "A description for this game is not currently available. Explore the game and discover what it has to offer.";
+
+  const dealLink = game.dealID
+    ? `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(game.dealID)}`
+    : "";
+
+  // Hide the game cards and show the selected game.
+  gameGrid.hidden = true;
+  resultCount.hidden = true;
+  gameDetails.hidden = false;
+
+  gameDetails.innerHTML = `
+
+    <button
+      id="backButton"
+      class="back-button"
+      type="button"
+    >
+      ← Back to Games
+    </button>
+
+    <div class="details-card">
+
+      <div class="details-image-container">
+
+        <img
+          src="${escapeHTML(game.image || '')}"
+          alt="${escapeHTML(game.title)}"
+          class="details-image"
+        />
+
+      </div>
+
+      <div class="details-content">
+
+        <p class="details-store">
+          ${escapeHTML(game.store)}
+        </p>
+
+        <h2>${escapeHTML(game.title)}</h2>
+
+        ${isOnSale
+          ? `<span class="details-sale-tag">ON SALE</span>`
+          : ''
+        }
+
+        <h3>About This Game</h3>
+
+        <p class="details-description">
+          ${description}
+        </p>
+
+        <div class="details-prices">
+
+          <span class="details-sale-price">
+            ${formatPrice(game.salePrice)}
+          </span>
+
+          ${isOnSale
+            ? `<span class="details-normal-price">
+                ${formatPrice(game.normalPrice)}
+              </span>`
+            : ''
+          }
+
+        </div>
+
+        ${isOnSale
+          ? `<p class="details-discount">
+              You save ${calculateDiscountPercentage(game)}% on this game!
+            </p>`
+          : `<p class="details-regular">
+              This game is currently at its regular price.
+            </p>`
+        }
+
+        ${game.dealRating
+          ? `<p class="details-rating">
+              Deal Rating: ${Number(game.dealRating).toFixed(1)} / 10
+            </p>`
+          : ''
+        }
+
+        ${dealLink
+          ? `<a
+              href="${dealLink}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="details-deal-link"
+            >
+              View Deal →
+            </a>`
+          : ''
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+  // Hide a broken game image.
+  const detailsImage = gameDetails.querySelector('.details-image');
+
+  detailsImage.addEventListener('error', () => {
+    detailsImage.style.display = 'none';
+  });
+
+  gameDetails.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+
+}
+
+// RETURN TO THE GAME LIST
+function returnToGames() {
+
+  gameDetails.hidden = true;
+  gameGrid.hidden = false;
+  resultCount.hidden = false;
+
+  updateDisplayedGames();
+}
+
+// HANDLE CLICKING ON GAME CARDS
+gameGrid.addEventListener('click', event => {
+
+  // Ignore clicks on deal links.
+  if (event.target.closest('a, button')) {
+    return;
+  }
+
+  const selectedCard = event.target.closest('.game-card');
+
+  if (!selectedCard) {
+    return;
+  }
+
+  const selectedGame = currentDeals.find(game =>
+    String(game.dealID || game.id) === selectedCard.dataset.gameKey
+  );
+
+  if (selectedGame) {
+    showGameDetails(selectedGame);
+  }
+
+});
+
+// SUPPORT KEYBOARD ACCESS
+gameGrid.addEventListener('keydown', event => {
+
+  if (event.key !== 'Enter' && event.key !== ' ') {
+    return;
+  }
+
+  if (event.target.closest('a, button')) {
+    return;
+  }
+
+  const selectedCard = event.target.closest('.game-card');
+
+  if (!selectedCard) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const selectedGame = currentDeals.find(game =>
+    String(game.dealID || game.id) === selectedCard.dataset.gameKey
+  );
+
+  if (selectedGame) {
+    showGameDetails(selectedGame);
+  }
+
+});
+
+// BACK BUTTON
+gameDetails.addEventListener('click', event => {
+
+  if (event.target.closest('#backButton')) {
+    returnToGames();
+  }
+
+});
+
+// SEARCH GAMES
 searchInput.addEventListener('input', updateDisplayedGames);
 
-// Activate or deactivate the sale filter
+// ON-SALE FILTER
 saleFilterButton.addEventListener('click', () => {
 
   showOnlyOnSale = !showOnlyOnSale;
@@ -355,24 +609,23 @@ saleFilterButton.addEventListener('click', () => {
 });
 
 // CHEAPSHARK API INTEGRATION
-
 async function fetchLiveDeals() {
 
   const loadingMessage = document.querySelector('#loadingMessage');
-
   const errorMessage = document.querySelector('#errorMessage');
 
-  const gameGrid = document.querySelector('#gameGrid');
-
   loadingMessage.textContent = 'Loading live game deals...';
-
   errorMessage.textContent = '';
+
+  gameDetails.hidden = true;
+  gameGrid.hidden = false;
+  resultCount.hidden = false;
 
   gameGrid.innerHTML = '';
 
   try {
 
-    // Request live deals and store information together
+    // Request live deals and store information together.
     const [dealsResponse, storesResponse] = await Promise.all([
 
       fetch(`${API_URL}/deals?onSale=1&pageSize=20&sortBy=DealRating`),
@@ -385,7 +638,7 @@ async function fetchLiveDeals() {
       throw new Error('Unable to retrieve data from CheapShark.');
     }
 
-    // Convert API responses into JavaScript data
+    // Convert API responses into JavaScript data.
     const [dealsData, storesData] = await Promise.all([
 
       dealsResponse.json(),
@@ -394,16 +647,14 @@ async function fetchLiveDeals() {
 
     ]);
 
-    // Create a list of store IDs and store names
+    // Create a list of store IDs and store names.
     const storeNames = {};
 
     storesData.forEach(store => {
-
       storeNames[store.storeID] = store.storeName;
-
     });
 
-    // Convert API sorce data into our application's game format
+    // Convert API data into our application's game format.
     const liveGames = dealsData.map(deal => {
 
       return {
@@ -420,14 +671,15 @@ async function fetchLiveDeals() {
 
         image: deal.thumb,
 
-        dealID: deal.dealID
+        dealID: deal.dealID,
+
+        dealRating: Number(deal.dealRating)
 
       };
 
     });
 
     currentDeals = liveGames;
-
     currentCurrency = "USD";
 
     loadingMessage.textContent = '';
@@ -438,7 +690,8 @@ async function fetchLiveDeals() {
     updateDisplayedGames();
 
     if (liveGames.length === 0) {
-      errorMessage.textContent = 'No live deals were returned. Please try again later.';
+      errorMessage.textContent =
+        'No live deals were returned. Please try again later.';
     }
 
   } catch (error) {
@@ -456,10 +709,8 @@ async function fetchLiveDeals() {
 
 }
 
-
 // SWITCH BETWEEN DATA SOURCES
 const sampleButton = document.querySelector('#sampleButton');
-
 const liveButton = document.querySelector('#liveButton');
 
 sampleButton.addEventListener('click', () => {
@@ -467,28 +718,27 @@ sampleButton.addEventListener('click', () => {
   isLiveMode = false;
 
   currentDeals = sampleDeals;
-
   currentCurrency = "ZAR";
-
   showOnlyOnSale = false;
 
   searchInput.value = '';
 
   saleFilterButton.classList.remove('active');
-
   saleFilterButton.textContent = '🏷️ Show Only On Sale';
 
   saleFilterButton.setAttribute('aria-pressed', 'false');
 
   sampleButton.classList.add('active');
-
   liveButton.classList.remove('active');
 
+  gameDetails.hidden = true;
+  gameGrid.hidden = false;
+  resultCount.hidden = false;
+
   document.querySelector('#sourceDescription').textContent =
-    'CheapShark Deals are in Dollars($).';
+    'Sample game deals are displayed in South African rand (ZAR).';
 
   document.querySelector('#errorMessage').textContent = '';
-
   document.querySelector('#loadingMessage').textContent = '';
 
   updateDisplayedGames();
@@ -500,15 +750,12 @@ liveButton.addEventListener('click', async () => {
   isLiveMode = true;
 
   sampleButton.classList.remove('active');
-
   liveButton.classList.add('active');
 
   showOnlyOnSale = false;
-
   searchInput.value = '';
 
   saleFilterButton.classList.remove('active');
-
   saleFilterButton.textContent = '🏷️ Show Only On Sale';
 
   saleFilterButton.setAttribute('aria-pressed', 'false');
@@ -520,8 +767,7 @@ liveButton.addEventListener('click', async () => {
 
 });
 
-
-//  INITIAL PAGE LOAD
+// INITIAL PAGE LOAD
 updateDisplayedGames();
 
 console.log("Games on sale:", getGamesOnSale(sampleDeals));
