@@ -184,8 +184,6 @@ footer {
   }
 }
 
-/*PART C - SEARCH AND FILTER CONTROLS*/
-
 .deal-controls {
   display: flex;
   align-items: center;
@@ -254,15 +252,11 @@ footer {
   color: #ffffff;
 }
 
-/* Number of matching games */
-
 .result-count {
   color: #829bb2;
   font-size: 13px;
   margin-bottom: 18px;
 }
-
-/* No matching games message */
 
 .no-results {
   grid-column: 1 / -1;
@@ -283,7 +277,6 @@ footer {
   font-size: 14px;
 }
 
-/* Responsive search controls */
 
 @media (max-width: 500px) {
   .deal-controls {
@@ -297,7 +290,6 @@ footer {
   }
 }
 
-/*CHEAPSHARK - DATA SOURCE CONTROLS*/
 
 .data-source {
   background: #ffffff;
@@ -349,8 +341,6 @@ footer {
   line-height: 1.5;
 }
 
-/* API LOADING AND ERROR MESSAGES*/
-
 .loading-message {
   color: #398bcf;
   text-align: center;
@@ -364,8 +354,6 @@ footer {
   font-size: 14px;
   padding: 15px;
 }
-
-/* CHEAPSHARK DEAL LINKS*/
 
 .deal-link {
   display: inline-block;
@@ -395,7 +383,6 @@ footer {
 
 }
 
-/* Make game cards clickable */
 
 .clickable-card {
   cursor: pointer;
@@ -412,7 +399,6 @@ footer {
   outline-offset: 3px;
 }
 
-/* Selected game details */
 
 [hidden] {
   display: none !important;
@@ -559,7 +545,7 @@ footer {
   background: #87c8f5;
 }
 
-/* Mobile layout */
+
 
 @media (max-width: 650px) {
   .details-card {

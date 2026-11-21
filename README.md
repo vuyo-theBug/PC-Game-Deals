@@ -8,6 +8,7 @@ Identify games currently on sale.
 Calculate discount percentages.
 Search for games by title.
 Retrieve live deals using the CheapShark API.
+You can now click on the game to view more details.
 
 TECH USED
 HTML

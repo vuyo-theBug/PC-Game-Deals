@@ -1,7 +1,5 @@
-
 import './style.css';
 
-// SAMPLE GAME DATA
 const sampleDeals = [
   {
     id: 1,
@@ -69,7 +67,6 @@ const sampleDeals = [
   }
 ];
 
-// GAME DESCRIPTIONS
 const gameDescriptions = {
   "Hollow Knight":
     "Explore a mysterious underground kingdom filled with forgotten secrets, dangerous creatures and challenging enemies in this beautiful action-adventure game.",
@@ -96,12 +93,10 @@ const gameDescriptions = {
     "Take on challenging boss battles in a classic cartoon-inspired run-and-gun adventure."
 };
 
-// PART A: GET GAMES ON SALE
 function getGamesOnSale(games) {
   return games.filter(game => game.salePrice < game.normalPrice);
 }
 
-// PART A: CALCULATE DISCOUNT
 function calculateDiscountPercentage(game) {
   if (game.normalPrice <= 0) {
     return 0;
@@ -112,7 +107,6 @@ function calculateDiscountPercentage(game) {
   return Math.round((discount / game.normalPrice) * 100);
 }
 
-// PART A: FIND CHEAPEST GAME
 function findCheapestGame(games) {
   if (games.length === 0) {
     return null;
@@ -123,14 +117,12 @@ function findCheapestGame(games) {
   });
 }
 
-// PART A: SEARCH GAMES
 function searchGames(games, searchTerm) {
   return games.filter(game =>
     game.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
   );
 }
 
-// APPLICATION SETTINGS
 let currentDeals = sampleDeals;
 let isLiveMode = false;
 let showOnlyOnSale = false;
@@ -140,7 +132,6 @@ const API_URL = "https://www.cheapshark.com/api/1.0";
 
 const app = document.querySelector('#app');
 
-// CREATE THE PAGE
 app.innerHTML = `
 
   <header class="header">
@@ -233,14 +224,13 @@ app.innerHTML = `
 
 `;
 
-// PAGE ELEMENTS
 const searchInput = document.querySelector('#searchInput');
 const saleFilterButton = document.querySelector('#saleFilterButton');
 const gameGrid = document.querySelector('#gameGrid');
 const resultCount = document.querySelector('#resultCount');
 const gameDetails = document.querySelector('#gameDetails');
 
-// FORMAT PRICES
+
 function formatPrice(price) {
   const symbol = currentCurrency === "ZAR" ? "R" : "$";
 
@@ -262,7 +252,6 @@ function escapeHTML(value) {
   });
 }
 
-// DISPLAY GAME CARDS
 function displayGameCards(games) {
 
   resultCount.textContent = `Showing ${games.length} game(s)`;
@@ -363,7 +352,6 @@ function displayGameCards(games) {
 
   }).join('');
 
-  // Hide any game image that fails to load.
   gameGrid.querySelectorAll('.game-cover').forEach(image => {
     image.addEventListener('error', () => {
       image.style.display = 'none';
@@ -372,19 +360,16 @@ function displayGameCards(games) {
 
 }
 
-// UPDATE THE DISPLAYED GAMES
 function updateDisplayedGames() {
 
   const searchTerm = searchInput.value;
 
   let filteredGames = currentDeals;
 
-  // Apply search.
   if (searchTerm.trim() !== '') {
     filteredGames = searchGames(filteredGames, searchTerm);
   }
 
-  // Apply on-sale filter.
   if (showOnlyOnSale) {
     filteredGames = getGamesOnSale(filteredGames);
   }
@@ -392,7 +377,6 @@ function updateDisplayedGames() {
   displayGameCards(filteredGames);
 }
 
-// SHOW DETAILS OF THE SELECTED GAME
 function showGameDetails(game) {
 
   const isOnSale = game.salePrice < game.normalPrice;
@@ -404,8 +388,7 @@ function showGameDetails(game) {
     ? `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(game.dealID)}`
     : "";
 
-  // Hide the game cards and show the selected game.
-  gameGrid.hidden = true;
+    gameGrid.hidden = true;
   resultCount.hidden = true;
   gameDetails.hidden = false;
 
@@ -499,7 +482,6 @@ function showGameDetails(game) {
 
   `;
 
-  // Hide a broken game image.
   const detailsImage = gameDetails.querySelector('.details-image');
 
   detailsImage.addEventListener('error', () => {
@@ -513,7 +495,6 @@ function showGameDetails(game) {
 
 }
 
-// RETURN TO THE GAME LIST
 function returnToGames() {
 
   gameDetails.hidden = true;
@@ -523,10 +504,7 @@ function returnToGames() {
   updateDisplayedGames();
 }
 
-// HANDLE CLICKING ON GAME CARDS
 gameGrid.addEventListener('click', event => {
-
-  // Ignore clicks on deal links.
   if (event.target.closest('a, button')) {
     return;
   }
@@ -547,7 +525,6 @@ gameGrid.addEventListener('click', event => {
 
 });
 
-// SUPPORT KEYBOARD ACCESS
 gameGrid.addEventListener('keydown', event => {
 
   if (event.key !== 'Enter' && event.key !== ' ') {
@@ -576,7 +553,6 @@ gameGrid.addEventListener('keydown', event => {
 
 });
 
-// BACK BUTTON
 gameDetails.addEventListener('click', event => {
 
   if (event.target.closest('#backButton')) {
@@ -585,10 +561,8 @@ gameDetails.addEventListener('click', event => {
 
 });
 
-// SEARCH GAMES
 searchInput.addEventListener('input', updateDisplayedGames);
 
-// ON-SALE FILTER
 saleFilterButton.addEventListener('click', () => {
 
   showOnlyOnSale = !showOnlyOnSale;
@@ -647,14 +621,12 @@ async function fetchLiveDeals() {
 
     ]);
 
-    // Create a list of store IDs and store names.
     const storeNames = {};
 
     storesData.forEach(store => {
       storeNames[store.storeID] = store.storeName;
     });
 
-    // Convert API data into our application's game format.
     const liveGames = dealsData.map(deal => {
 
       return {
@@ -709,7 +681,6 @@ async function fetchLiveDeals() {
 
 }
 
-// SWITCH BETWEEN DATA SOURCES
 const sampleButton = document.querySelector('#sampleButton');
 const liveButton = document.querySelector('#liveButton');
 
@@ -767,7 +738,7 @@ liveButton.addEventListener('click', async () => {
 
 });
 
-// INITIAL PAGE LOAD
+
 updateDisplayedGames();
 
 console.log("Games on sale:", getGamesOnSale(sampleDeals));
