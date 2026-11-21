@@ -127,6 +127,7 @@ let currentDeals = sampleDeals;
 let isLiveMode = false;
 let showOnlyOnSale = false;
 let currentCurrency = "ZAR";
+let currentSort = "default";
 
 const API_URL = "https://www.cheapshark.com/api/1.0";
 
@@ -200,6 +201,14 @@ app.innerHTML = `
         🏷️ Show Only On Sale
       </button>
 
+      <select id="sortSelect" class="sort-select" aria-label="Sort games">
+        <option value="default">Default Order</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="az">Alphabetical: A to Z</option>
+        <option value="za">Alphabetical: Z to A</option>
+      </select>
+
     </section>
 
     <p id="resultCount" class="result-count"></p>
@@ -210,7 +219,6 @@ app.innerHTML = `
 
     <section class="game-grid" id="gameGrid"></section>
 
-    <!-- SELECTED GAME DETAILS -->
     <section id="gameDetails" class="game-details-page" hidden></section>
 
   </main>
@@ -226,10 +234,10 @@ app.innerHTML = `
 
 const searchInput = document.querySelector('#searchInput');
 const saleFilterButton = document.querySelector('#saleFilterButton');
+const sortSelect = document.querySelector('#sortSelect');
 const gameGrid = document.querySelector('#gameGrid');
 const resultCount = document.querySelector('#resultCount');
 const gameDetails = document.querySelector('#gameDetails');
-
 
 function formatPrice(price) {
   const symbol = currentCurrency === "ZAR" ? "R" : "$";
@@ -237,7 +245,6 @@ function formatPrice(price) {
   return `${symbol}${Number(price).toFixed(2)}`;
 }
 
-// ESCAPE TEXT FROM API DATA BEFORE INSERTING IT INTO HTML
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => {
     const characters = {
@@ -364,7 +371,7 @@ function updateDisplayedGames() {
 
   const searchTerm = searchInput.value;
 
-  let filteredGames = currentDeals;
+  let filteredGames = [...currentDeals];
 
   if (searchTerm.trim() !== '') {
     filteredGames = searchGames(filteredGames, searchTerm);
@@ -372,6 +379,16 @@ function updateDisplayedGames() {
 
   if (showOnlyOnSale) {
     filteredGames = getGamesOnSale(filteredGames);
+  }
+
+  if (currentSort === "price-low") {
+    filteredGames.sort((a, b) => a.salePrice - b.salePrice);
+  } else if (currentSort === "price-high") {
+    filteredGames.sort((a, b) => b.salePrice - a.salePrice);
+  } else if (currentSort === "az") {
+    filteredGames.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (currentSort === "za") {
+    filteredGames.sort((a, b) => b.title.localeCompare(a.title));
   }
 
   displayGameCards(filteredGames);
@@ -388,7 +405,7 @@ function showGameDetails(game) {
     ? `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(game.dealID)}`
     : "";
 
-    gameGrid.hidden = true;
+  gameGrid.hidden = true;
   resultCount.hidden = true;
   gameDetails.hidden = false;
 
@@ -582,7 +599,11 @@ saleFilterButton.addEventListener('click', () => {
 
 });
 
-// CHEAPSHARK API INTEGRATION
+sortSelect.addEventListener('change', () => {
+  currentSort = sortSelect.value;
+  updateDisplayedGames();
+});
+
 async function fetchLiveDeals() {
 
   const loadingMessage = document.querySelector('#loadingMessage');
@@ -599,7 +620,6 @@ async function fetchLiveDeals() {
 
   try {
 
-    // Request live deals and store information together.
     const [dealsResponse, storesResponse] = await Promise.all([
 
       fetch(`${API_URL}/deals?onSale=1&pageSize=20&sortBy=DealRating`),
@@ -612,7 +632,6 @@ async function fetchLiveDeals() {
       throw new Error('Unable to retrieve data from CheapShark.');
     }
 
-    // Convert API responses into JavaScript data.
     const [dealsData, storesData] = await Promise.all([
 
       dealsResponse.json(),
@@ -694,6 +713,9 @@ sampleButton.addEventListener('click', () => {
 
   searchInput.value = '';
 
+  currentSort = "default";
+  sortSelect.value = "default";
+
   saleFilterButton.classList.remove('active');
   saleFilterButton.textContent = '🏷️ Show Only On Sale';
 
@@ -726,6 +748,9 @@ liveButton.addEventListener('click', async () => {
   showOnlyOnSale = false;
   searchInput.value = '';
 
+  currentSort = "default";
+  sortSelect.value = "default";
+
   saleFilterButton.classList.remove('active');
   saleFilterButton.textContent = '🏷️ Show Only On Sale';
 
@@ -737,7 +762,6 @@ liveButton.addEventListener('click', async () => {
   await fetchLiveDeals();
 
 });
-
 
 updateDisplayedGames();
 
